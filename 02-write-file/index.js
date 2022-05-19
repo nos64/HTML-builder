@@ -5,6 +5,7 @@ const { stdin, stdout } = require('process');
 const output = fs.createWriteStream(
   path.join(__dirname, 'text.txt'), 'utf-8'
 );
+
 stdout.write('Привет! Введите текст...\n');
 
 stdin.on('data', data => {
