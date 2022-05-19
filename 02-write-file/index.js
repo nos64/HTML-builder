@@ -1,19 +1,16 @@
-const { stdin, stdout } = process;
 const fs = require('fs');
 const path = require('path');
+const { stdin, stdout } = require('process');
 
-// const output = fs.createWriteStream(
-//   path.join(__dirname, 'destination.txt'), 'utf-8'
-// );
-const input = fs.createReadStream(
-  path.join(__dirname, 'destination.txt'), 'utf-8'
+const output = fs.createWriteStream(
+  path.join(__dirname, 'text.txt'), 'utf-8'
 );
-stdout.write('Введите текст...\n');
+stdout.write('Привет! Введите текст...\n');
 
+stdin.on('data', data => {
+  output.write(data);
+  if (data.toString().trim() === 'exit') process.exit();
+});
 
-
-input.on('data', chunk => output.write(chunk));
-input.on('error', error => console.log('Error', error.message));
-
-
-stdout.write('Введите текст...\n');
+process.on('SIGINT', () => process.exit());
+process.on('exit', () => stdout.write('Удачи!'));
