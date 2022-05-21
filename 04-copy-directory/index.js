@@ -2,66 +2,56 @@ const fs = require('fs');
 const path = require('path');
 
 const copyPath = path.join(__dirname, 'files-copy');
-const initialPath = path.resolve(__dirname, 'files');
+const initialPath = path.join(__dirname, 'files');
 
-
-const deleteFileOrFOlder = (folder) => {
-  fs.readdir(folder,
-    { withFileTypes: true },
-    (err, files) => {
-      if(err) throw err;
-      files.forEach(item => {
-        // fs.unlink((folder, item.name), () => {});
-        fs.stat(folder, (errStat, stats) => {
-          if(errStat) throw errStat;
-          else fs.unlink(path.join(folder, item.name), () => {});
-        })
-        // let curPath = path.join(folder, item.name);
-        // fs.stat(curPath, (errStat, stats) => {
-        //   if(errStat) throw errStat;
-        //   if(stats.isDirectory()) deleteFileOrFOlder(curPath);
-        //   else fs.unlink(path.join((folder, curPath)), () => {});
-        // });
-      });
-      
-    });
-  // fs.rmdir((folder), () => {});
+const init = () => {
+  fs.stat(copyPath, (err, stats) => {
+    if (err) { 
+      mkDir();
+      copy();
+    } else if (stats.isDirectory()) {
+      clear();
+      copy ();
+    } else if (stats.isFile()) {
+      fs.unlink((copyPath), () => {});
+      mkDir();
+      copy ();
+    }
+  });
 };
 
-const copyFilles = () => {
+function mkDir () {
+  fs.mkdir((copyPath), () => {});
+}
+
+function clear () {
+  fs.readdir(copyPath, (err, files) => {
+    if (err) throw err;
+    if (files) {
+      files.forEach(item => {
+        fs.unlink(path.join(copyPath, item), () => {});
+      });
+    }
+  });
+}
+
+function copy () {
   fs.readdir(initialPath,
     { withFileTypes: true },
     (err, files) => {
-      if (err) console.log(err);
+      if (err) throw err;
       files.forEach(item => {
         fs.copyFile(
           path.join(initialPath, item.name), 
           path.join(copyPath, item.name), 
           (err) => {
-          if (err) console.log('Error Found:', err);
-        });
+            if (err) throw err;
+          });
       });
     });
 }
 
-const mkDir = () => {
-  fs.stat(copyPath, (err, stats) => {
-    if (err) { 
-      fs.mkdir((copyPath), () => {});
-    } else if (stats.isDirectory()) {
-      deleteFileOrFOlder(copyPath);
-      // fs.mkdir((copyPath), () => {});
-    } else if (stats.isFile()) {
-      fs.unlink((copyPath), () => {});
-      mkDir();
-    } 
-  });
- 
-};
-mkDir();
-copyFilles()
-
-
+init();
 
 
 
