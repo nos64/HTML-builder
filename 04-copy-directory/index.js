@@ -6,46 +6,46 @@ const initialPath = path.join(__dirname, 'files');
 
 const init = () => {
   fs.stat(copyPath, (err, stats) => {
-    if (err) { 
+    if (err) {
       mkDir();
       copy();
     } else if (stats.isDirectory()) {
       clear();
-      copy ();
+      copy();
     } else if (stats.isFile()) {
-      fs.unlink((copyPath), () => {});
+      fs.unlink((copyPath), () => { });
       mkDir();
-      copy ();
+      copy();
     }
   });
 };
 
-function mkDir () {
-  fs.mkdir((copyPath), () => {});
+function mkDir() {
+  fs.mkdir((copyPath), () => { });
 }
 
-function clear () {
+function clear() {
   fs.readdir(copyPath, (err, files) => {
-    if (err) throw err;
+    if (err) console.log(err);
     if (files) {
       files.forEach(item => {
-        fs.unlink(path.join(copyPath, item), () => {});
+        fs.unlink(path.join(copyPath, item), () => { });
       });
     }
   });
 }
 
-function copy () {
+function copy() {
   fs.readdir(initialPath,
     { withFileTypes: true },
     (err, files) => {
-      if (err) throw err;
+      if (err) console.log(err);
       files.forEach(item => {
         fs.copyFile(
-          path.join(initialPath, item.name), 
-          path.join(copyPath, item.name), 
+          path.join(initialPath, item.name),
+          path.join(copyPath, item.name),
           (err) => {
-            if (err) throw err;
+            if (err) console.log(err);
           });
       });
     });
