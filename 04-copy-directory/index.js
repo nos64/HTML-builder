@@ -1,92 +1,67 @@
 const fs = require('fs');
 const path = require('path');
 
-const filesCopy = path.resolve(__dirname, 'files-copy');
-const files = path.join(__dirname, 'files');
+const copyPath = path.join(__dirname, 'files-copy');
+const initialPath = path.resolve(__dirname, 'files');
 
-const deleteFile = (folder) => {
+
+const deleteFileOrFOlder = (folder) => {
   fs.readdir(folder,
     { withFileTypes: true },
     (err, files) => {
-    if(err) throw err;
-    files.forEach(item =>{
-      let file = path.resolve(folder, item.name);
-      fs.stat(file, (errStat, stats) => {
-        if(errStat) throw errStat;
-        if(stats.isDirectory()){
-          fs.rmdir((file), (err) => {
-            if (!err) fs.rmdir((file), () => {console.log('Удален файл ' + file);})
-            else {
-              deleteFile(file)
-              console.log('file: ', file);
-              
-            }
-          });
-       }else if (stats.isFile()) {
-        fs.unlink((folder, file), () => {});
-        } 
-        // else {
-        //   fs.rmdir((filesCopy, file), () => {})
-        // };
-      })
-    })
-  })
+      if(err) throw err;
+      files.forEach(item => {
+        // fs.unlink((folder, item.name), () => {});
+        fs.stat(folder, (errStat, stats) => {
+          if(errStat) throw errStat;
+          else fs.unlink(path.join(folder, item.name), () => {});
+        })
+        // let curPath = path.join(folder, item.name);
+        // fs.stat(curPath, (errStat, stats) => {
+        //   if(errStat) throw errStat;
+        //   if(stats.isDirectory()) deleteFileOrFOlder(curPath);
+        //   else fs.unlink(path.join((folder, curPath)), () => {});
+        // });
+      });
+      
+    });
+  // fs.rmdir((folder), () => {});
+};
+
+const copyFilles = () => {
+  fs.readdir(initialPath,
+    { withFileTypes: true },
+    (err, files) => {
+      if (err) console.log(err);
+      files.forEach(item => {
+        fs.copyFile(
+          path.join(initialPath, item.name), 
+          path.join(copyPath, item.name), 
+          (err) => {
+          if (err) console.log('Error Found:', err);
+        });
+      });
+    });
 }
 
-deleteFile(filesCopy)
-
-// const mkDir = () => {
-//   fs.stat(path.join(__dirname, 'files-copy'), (err, stats) => {
-//     if (err) { 
-//       fs.mkdir(path.join(__dirname, 'files-copy'), () => {});
-//     } else if (stats.isDirectory()) {
-//       fs.unlink(path.join(__dirname, 'files-copy'), () => {});
-//         // process.exit();
-//     } else if (stats.isFile()) {
-//       fs.unlink(path.join(__dirname, 'files-copy'), () => {});
-//       mkDir();
-//     } 
-//   });
-// };
-// mkDir();
-
-// fs.stat(path.join(__dirname, 'files-copy'), (err, stats) => {
-//   if (err) { 
-//     fs.mkdir(path.join(__dirname, 'files-copy'), () => {});
-//   } else {
-//     // fs.rmdir(path.join(__dirname, 'files-copy'), err => {});
-//     // fs.mkdir(path.join(__dirname, 'files-copy'), () => {});
-//     fs.readdir(path.join(__dirname, 'files-copy'), (err, files) => {
-//       if(err) throw err;
-//       files.forEach(item => {
-//         fs.stat(path.join(__dirname, 'files-copy'), (err, item) => {
-//           if(err) throw err;
-//           if(stats.isDerictory()){
-//             console.log('Папка: ' + item.name);
-//             listObjects(path + '/' + item.name);
-//           }else{
-//             console.log('Файл: ' + item.name);
-//          }
-//         })
-//       })
-//     })
-
-    
-//   }
-// })
+const mkDir = () => {
+  fs.stat(copyPath, (err, stats) => {
+    if (err) { 
+      fs.mkdir((copyPath), () => {});
+    } else if (stats.isDirectory()) {
+      deleteFileOrFOlder(copyPath);
+      // fs.mkdir((copyPath), () => {});
+    } else if (stats.isFile()) {
+      fs.unlink((copyPath), () => {});
+      mkDir();
+    } 
+  });
+ 
+};
+mkDir();
+copyFilles()
 
 
-// fs.readdir(
-//   path.join(__dirname, 'files'),
-//   { withFileTypes: true },
-//   (err, files) => {
-//     if (err) console.log(err);
-//     files.forEach(item => {
-//       fs.copyFile(path.join(__dirname, 'files', item.name), path.join(__dirname, 'files-copy', item.name), (err) => {
-//         if (err) {
-//           console.log("Error Found:", err);
-//         }
-//       });
-//     });
-//   });
+
+
 
