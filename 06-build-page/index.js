@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-
+const fsPromises = require('fs/promises');
 
 const projectDist = path.join(__dirname, 'project-dist');
 const assets = path.join(__dirname, 'assets');
@@ -8,7 +8,10 @@ const initialStyles = path.join(__dirname, 'styles');
 const components = path.join(__dirname, 'components');
 
 
-const mkDir = (folder) => {
+
+
+const mkDir = async (folder) => {
+  
   //Создаем папку project-dist
   fs.mkdir((folder), { recursive: true }, (err) => {
     if (err) console.log(err);
@@ -85,6 +88,7 @@ const mergeStyle = () => {
     });
 };
 
+
 const createIndexFile = async () => {
 //Читаем файл template
   fs.readFile(path.join(__dirname, 'template.html'), 'utf8', (err, data) => {
@@ -111,7 +115,7 @@ const createIndexFile = async () => {
               fs.readFile(file, 'utf8', (err, data) => {
                 if (err) console.log(err);
                 //Заменяем {{компонент}} на содержимое файла компонента
-                idexData = idexData.replace(`{{${path.parse(file).name}}}`, data);
+                idexData =  idexData.replace(`{{${path.parse(file).name}}}`, data);
 
                 //Записываем в файл index.html
                 fs.writeFile(path.join(projectDist, 'index.html'), idexData, err => {
@@ -125,6 +129,14 @@ const createIndexFile = async () => {
   });
 };
 
+const clearFolder = () => {
+  fs.rm(projectDist, { recursive: true, force: true }, (err) => {
+    if(err) mkDir(projectDist);
+  });
+};
+
+
+clearFolder();
 const buildPage = () => {
   mkDir(projectDist);
   createIndexFile();
