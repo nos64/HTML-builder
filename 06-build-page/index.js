@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const fsPromises = require('fs/promises');
+
 
 const projectDist = path.join(__dirname, 'project-dist');
 const assets = path.join(__dirname, 'assets');
@@ -89,55 +89,78 @@ const mergeStyle = () => {
 };
 
 
+// const createIndexFile = async () => {
+// //Читаем файл template
+//   fs.readFile(path.join(__dirname, 'template.html'), 'utf8', (err, data) => {
+//     if (err) console.log(err);
+//     let idexData = '';
+//     idexData +=  data;
+
+//     //Читаем папку с компонентами
+//     fs.readdir(components,
+//       { withFileTypes: true },
+//       (err, files) => {
+//         if (err) console.log(err);
+
+//         //Перебираем компоненты
+//         for (const item of files) {
+//         // files.forEach(async item => {
+//           let file = path.join(components, item.name);
+//           fs.stat(file, (err, stats) => {
+//             if (err) console.log(err);
+
+//             //Для каждого компонента с расширением html
+//             if(stats.isFile() && path.parse(file).ext.slice(1) === 'html') {
+
+//               //Читаем компонент
+//               fs.readFile(file, 'utf8', (err, data) => {
+//                 if (err) console.log(err);
+//                 //Заменяем {{компонент}} на содержимое файла компонента
+//                 idexData =  idexData.replace(`{{${path.parse(file).name}}}`, data);
+
+//                 //Записываем в файл index.html
+//                 fs.writeFile(path.join(projectDist, 'index.html'), idexData, err => {
+//                   if (err) console.log(err);
+//                 });
+//               });
+//             }
+//           });
+//         }
+//         // });
+//       });
+//   });
+// };
+
+
 const createIndexFile = async () => {
-//Читаем файл template
-  fs.readFile(path.join(__dirname, 'template.html'), 'utf8', (err, data) => {
-    if (err) console.log(err);
-    let idexData = '';
-    idexData +=  data;
+  //Читаем файл template
+  const template = await fs.promises.readFile(path.join(__dirname, 'template.html'), 'utf8');
 
-    //Читаем папку с компонентами
-    fs.readdir(components,
-      { withFileTypes: true },
-      (err, files) => {
-        if (err) console.log(err);
+  //Читаем папку с компонентами
+  const componentsList = await fs.promises.readdir(components);
+  let idexData = template;
+ 
+  //Перебираем компоненты
+  for await (let item of componentsList) {
+    let file = path.join(components, item);
+    const stats = await fs.promises.stat(file);
 
-        //Перебираем компоненты
-        files.forEach(async item => {
-          let file = path.join(components, item.name);
-          fs.stat(file, (err, stats) => {
-            if (err) console.log(err);
-
-            //Для каждого компонента с расширением html
-            if(stats.isFile() && path.parse(file).ext.slice(1) === 'html') {
-
-              //Читаем компонент
-              fs.readFile(file, 'utf8', (err, data) => {
-                if (err) console.log(err);
-                //Заменяем {{компонент}} на содержимое файла компонента
-                idexData =  idexData.replace(`{{${path.parse(file).name}}}`, data);
-
-                //Записываем в файл index.html
-                fs.writeFile(path.join(projectDist, 'index.html'), idexData, err => {
-                  if (err) console.log(err);
-                });
-              });
-            }
-          });
-        });
-      });
-  });
-};
-
-const clearFolder = () => {
-  fs.rm(projectDist, { recursive: true, force: true }, (err) => {
-    if(err) mkDir(projectDist);
-  });
+    //Для каждого компонента с расширением html
+    if(stats.isFile() && path.parse(file).ext.slice(1) === 'html') {
+      //Читаем компонент
+      const componentText = await fs.promises.readFile(file, 'utf8');
+    
+      //Заменяем {{компонент}} на содержимое файла компонента
+      idexData =  idexData.replace(`{{${path.parse(file).name}}}`, componentText)
+    }
+  }
+  //Записываем в файл index.html
+  await fs.promises.writeFile(path.join(projectDist, 'index.html'), idexData);   
 };
 
 
-clearFolder();
-const buildPage = () => {
+const buildPage = async () => {
+  await fs.promises.rm(projectDist, { recursive: true, force: true });
   mkDir(projectDist);
   createIndexFile();
   mergeStyle();
