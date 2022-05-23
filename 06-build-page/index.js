@@ -7,64 +7,6 @@ const assets = path.join(__dirname, 'assets');
 const initialStyles = path.join(__dirname, 'styles');
 const components = path.join(__dirname, 'components');
 
-
-
-
-// const mkDir = async (folder) => {
-//   //Создаем папку project-dist
-//   fs.mkdir((folder), { recursive: true }, (err) => {
-//     if (err) console.log(err);
-//     //Создаем папку asses внутри project-dist
-//     fs.mkdir(path.join(folder, 'assets'), { recursive: true }, (err) => {
-//       if (err) console.log(err);
-//       //Читаем папку assets
-//       fs.readdir(
-//         assets,
-//         { withFileTypes: true },
-//         (err, files) => {
-//           if (err) console.log(err);
-//           files.forEach(item => {
-//             let file = path.join(assets, item.name);
-//             fs.stat(file, (err, stats) => {
-//               if (err) console.log(err);
-//               //Если внутри assets - файлы
-//               if(stats.isFile()) {
-//                 fs.copyFile(
-//                   path.join(assets, item.name),
-//                   path.join(folder, 'assets', item.name),
-//                   (err) => {
-//                     if (err) console.log(err);
-//                   });
-//               }
-//               //Если внутри assets - папки
-//               else if(stats.isDirectory()) {
-//                 fs.mkdir(path.join(folder, 'assets', item.name), { recursive: true }, (err) => {
-//                   if (err) console.log(err);
-//                   //Читаем каждую исходную папку
-//                   fs.readdir(path.join(assets, item.name),
-//                     { withFileTypes: true },
-//                     (err, files) => {
-//                       if (err) console.log(err);
-//                       //Перебираем файлы внутри
-//                       files.forEach(elem => {
-//                         //Копируем файлы
-//                         fs.copyFile(
-//                           path.join(assets, item.name, elem.name),
-//                           path.join(folder, 'assets', item.name, elem.name),
-//                           (err) => {
-//                             if (err) console.log(err);
-//                           });
-//                       });
-//                     });
-//                 });
-//               }
-//             });
-//           });
-//         });
-//     });
-//   });
-// };
-
 const copyAssets = async () => {
 
   const assetsProject = await fs.promises.mkdir(path.join(projectDist, 'assets'), { recursive: true })
