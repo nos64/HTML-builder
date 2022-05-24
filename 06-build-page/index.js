@@ -15,7 +15,7 @@ const copyAssets = async () => {
   for await (const item of initialAssets) {
     let file = path.join(assets, item.name);
     if (item.isFile()) {
-      await fs.promises.copyFile(path.join(initialAssets, item.name), path.join(assetsProject, item.name));
+      await fs.promises.copyFile(path.join(assets, item.name), path.join(assetsProject, item.name));
     } else if (item.isDirectory()) {
       const assetsProjectFolder = await fs.promises.mkdir(path.join(assetsProject, item.name), { recursive: true });
       const initialAssetsFolder = await fs.promises.readdir(file);
