@@ -9,8 +9,8 @@ const output = fs.createWriteStream(
 stdout.write('Привет! Введите текст...\n');
 
 stdin.on('data', data => {
-  output.write(data);
   if (data.toString().trim() === 'exit') process.exit();
+  output.write(data);
 });
 
 process.on('SIGINT', () => process.exit());
